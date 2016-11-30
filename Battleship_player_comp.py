@@ -28,6 +28,7 @@ def print_field(field):
 
 lst_sp_coord = []
 
+# создание кораблей
 class Ship():
 	def __init__(self, deck):
 		self.deck = deck
