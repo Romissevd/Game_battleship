@@ -36,7 +36,7 @@ class Ship():
 
 	def coordinate(self, field):
 		self.sp_coord = []
-		
+
 		while True:
 			self.value = 1
 			self.error = 1
@@ -75,25 +75,25 @@ class Ship():
 					self.value = self.value + 1
 				else:
 					print("Что-то пошло не так.")
-					
+
 			for x, y in self.sp_coord:
 				if field[x][y] == "H" or field[x][y] == "*":
 					self.sp_coord = []
-					
+
 			if len(self.sp_coord) == 0:
 				continue
-				
+
 			for x, y in self.sp_coord:
 				field[x][y] = "H"
-			
+
 			for x, y in self.sp_coord:
 				for m, n in [(x-1, y+1), (x, y+1), (x+1, y+1), (x-1, y), (x+1, y), (x-1, y-1), (x, y-1), (x+1, y-1)]:
 					if (-1) < m < 10 and (-1) < n < 10 and field[m][n] != "H":
 						field[m][n] = "*"
-					
+
 			break
 		return self.sp_coord
-		
+
 	def shot(self, x, y):
 		if (x, y) in self.sp_coord and self.shot_deck == self.deck and (x, y) not in self.ship_sost:
 			self.ship_sost.append((x, y))
@@ -105,8 +105,8 @@ class Ship():
 			return ["Подбил!"]
 		else:
 			return ["Мимо!"]
-	
-		
+
+
 ship_4_1 = Ship(4)
 ship_3_1 = Ship(3)
 ship_3_2 = Ship(3)
@@ -123,7 +123,7 @@ ships = [ship_4_1, ship_3_1, ship_3_2, ship_2_1, ship_2_2,
 
 for ship in ships:
 	ship.coordinate(field_game)
-	
+
 #print_field(field_game)
 
 print("Игра началась!")
@@ -139,11 +139,11 @@ for value in range(1, 51):
 	try:
 		player_string = int(input("Пожалуйста, введите номер строки:"))
 		player_column = int(input("Пожалуйста, введите номер столбца:"))
-		
+
 	except ValueError:
 		print("Вы должны вводить цифры!!!")
 		continue
-		
+
 	if not (0 < player_string < 11) or not (0 < player_column < 11):
 		print("Эй, таких координат нет!!!")
 		print("У вас осталось - %s попыток" % (50 - value))
@@ -185,4 +185,3 @@ for value in range(1, 51):
 		print("К сожалению вы проиграли!!!")
 		print("Расположение кораблей было такое:")
 		print_field(field_game)
-		
