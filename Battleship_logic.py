@@ -131,9 +131,9 @@ for ship in ships:
     ship.coordinate(field_game)
 
 def start_game(value):
-    print("Игра началась!")
-    print("Вам дается %d попыток, чтобы найти корабли." % (value))
-    #print("Введите предпологаемые вами координаты корабля!")
+    st = 'Игра началась!' + \
+         'Вам дается %d попыток, чтобы найти корабли.' % (value)
+    return st
 
 #print_field(field_game)
 def game(pl_str, pl_col, value, total_shot_ship):
@@ -160,7 +160,8 @@ def game(pl_str, pl_col, value, total_shot_ship):
         print("У вас осталось - %s попыток" % (value - 1))
         #continue
     elif value > 0:  # количество попыток
-        print("У вас осталось - %d попыток" % (value-1))
+        text = "У вас осталось - %d попыток" % (value-1)
+        print(text)
         lst_sost = []
         for shot_ship in ships:
             sost = shot_ship.shot((player_string - 1), (player_column - 1))
@@ -180,7 +181,7 @@ def game(pl_str, pl_col, value, total_shot_ship):
                             coord_for_ship_in_visual_field.append((m, n))
                 total_shot_ship += 1
                 #break
-                return coord_for_ship_in_visual_field
+                return (text, coord_for_ship_in_visual_field)
         else:
             if field_player[(player_string - 1)][(player_column - 1)] == "I" or \
                             field_player[(player_string - 1)][(player_column - 1)] == "H":
