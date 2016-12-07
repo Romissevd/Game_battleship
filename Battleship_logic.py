@@ -131,18 +131,16 @@ for ship in ships:
     ship.coordinate(field_game)
 
 def start_game(value):
-    st = 'Игра началась!' + \
-         'Вам дается %d попыток, чтобы найти корабли.' % (value)
+    st = []
+    st.append('Игра началась!')
+    st.append('Вам дается %d попыток, чтобы найти корабли.' % (value-1))
     return st
 
 #print_field(field_game)
 def game(pl_str, pl_col, value, total_shot_ship):
 
+    text = []
 
-    #print(pl_str, pl_col)
-
-    #total_shot_ship = 0
-    #for value in range(1, 51):
     if total_shot_ship == 10:
         print("Поздравляем вы выиграли!")
         #break
@@ -159,8 +157,8 @@ def game(pl_str, pl_col, value, total_shot_ship):
         print("Эй, таких координат нет!!!")
         print("У вас осталось - %s попыток" % (value - 1))
         #continue
-    elif value > 0:  # количество попыток
-        text = "У вас осталось - %d попыток" % (value-1)
+    elif value > 1:  # количество попыток
+        text.append("У вас осталось - %d попыток" % (value-1))
         print(text)
         lst_sost = []
         for shot_ship in ships:
@@ -172,6 +170,7 @@ def game(pl_str, pl_col, value, total_shot_ship):
                 for (x, y) in l[1]:
                     field_player[x][y] = "I"
                 print("Уничтожил!!!")
+                text.append("Уничтожил!!!")
                 for x, y in l[1]:
 
                     for m, n in [(x - 1, y + 1), (x, y + 1), (x + 1, y + 1), (x - 1, y), (x + 1, y), (x - 1, y - 1),
@@ -180,29 +179,31 @@ def game(pl_str, pl_col, value, total_shot_ship):
                             field_player[m][n] = "*"
                             coord_for_ship_in_visual_field.append((m, n))
                 total_shot_ship += 1
-                #break
-                return (text, coord_for_ship_in_visual_field)
+                return [text, coord_for_ship_in_visual_field]
         else:
             if field_player[(player_string - 1)][(player_column - 1)] == "I" or \
                             field_player[(player_string - 1)][(player_column - 1)] == "H":
-                print("Корабль уже подбит. Будь внимателен!!!")
+                text.append("Корабль уже подбит. Будь внимателен!!!")
             elif ["Подбил!"] in lst_sost:
                 field_player[(player_string - 1)][(player_column - 1)] = "H"
                 print("Подбил!!!")
+                text.append("Подбил!!!")
             else:
                 if field_player[(player_string - 1)][(player_column - 1)] == "0":
                     field_player[(player_string - 1)][(player_column - 1)] = "X"
                 elif field_player[(player_string - 1)][(player_column - 1)] == "*":
-                    print("Сюда можно не стрелять. Тут кораблей не будет!")
+                    text.append("Сюда можно не стрелять. Тут кораблей не будет!")
                 elif field_player[(player_string - 1)][(player_column - 1)] == "X":
-                    print("Сюда уже стрелял!!!")
-                print("Мимо!!!")
+                    text.append("Сюда уже стрелял!!!")
+                    value += 1
+                #print("Мимо!!!")
+                text.append("Мимо!!!")
+        return [text, coord_for_ship_in_visual_field]
         #print_field(field_player)
     else:
+        text.append("К сожалению вы проиграли!!!")
         print("К сожалению вы проиграли!!!")
         print("Расположение кораблей было такое:")
         print_field(field_game)
-        #return False
+        return [text, []]
 
-# game(int(input("Пожалуйста, введите номер строки:")),
-#     int(input("Пожалуйста, введите номер столбца:")))

@@ -43,7 +43,7 @@ pygame.draw.rect(screen, white, [0, width-(width-width_field), height_field, wid
 line_thickness = 4
 
 # количество попыток
-val = 50
+val = 51
 
 # функция создания линий на игровом поле
 def line_in_field(horizontal_line, vertical_line, color_line, x_circle, y_circle, line_thickness):
@@ -64,9 +64,12 @@ line_in_field(height_field, # вызываем один раз да бы не р
 
 # информация о начале игры и о количестве попыток
 
-font = pygame.font.Font(None, int(width*0.033))
-text = font.render(bs.start_game(val), True, black)
-screen.blit(text, [int(width*0.033), (width-(width-width_field))+int(width*0.033)])
+font = pygame.font.SysFont(None, int(width*0.033))
+n = 1
+for txt in bs.start_game(val):
+    text = font.render(txt, True, black)
+    screen.blit(text, [int(width*0.033), (width-(width-width_field))+int(width*0.033*n)])
+    n += 1
 
 total = 0
 
@@ -89,12 +92,15 @@ while done: # цикл выполнения игры
             if height_field < pos[0] or width_field < pos[1]: # проверяем где кликнули в поле или нет
                 break
 
-            val -= 1
+            if list(screen.get_at(pos))[:3] == blue:
+                val -= 1
+
+            #val -= 1
 
             p = bs.game(pos_y_index_for_field_game, pos_x_index_for_field_game, val, total) # cписок координат вокруг подбитого корабля
             print(p)
 
-            if p:
+            if p[1]: #len(p) > 1:
                 total += 1
                 for x in p[1]: # производим выстрел по координатам
                     pygame.draw.rect(screen, green,
@@ -104,10 +110,21 @@ while done: # цикл выполнения игры
                                   height_circle-line_thickness])
 
                 pygame.draw.rect(screen,white, [0, width-(width-width_field), height_field, width-width_field])
-                font = pygame.font.Font(None, int(width*0.033))
-                text = font.render(p[0], True, black)
-                screen.blit(text, [int(width*0.033), (width-(width-width_field))+int(width*0.033)])
+                font = pygame.font.SysFont(None, int(width*0.033))
+                n = 1
+                for txt in p[0]:
+                    text = font.render(txt, True, black)
+                    screen.blit(text, [int(width*0.033), (width-(width-width_field))+int(width*0.033*n)])
+                    n += 1
 
+            else:
+                pygame.draw.rect(screen,white, [0, width-(width-width_field), height_field, width-width_field])
+                font = pygame.font.SysFont(None, int(width*0.033))
+                n = 1
+                for txt in p[0]:
+                    text = font.render(txt, True, black)
+                    screen.blit(text, [int(width*0.033), (width-(width-width_field))+int(width*0.033*n)])
+                    n += 1
 
 
             if bs.field_game[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'H':
@@ -118,13 +135,17 @@ while done: # цикл выполнения игры
                               height_circle-line_thickness])
 
             if bs.field_game[pos_y_index_for_field_game][pos_x_index_for_field_game] == '0' or \
-               bs.field_game[pos_y_index_for_field_game][pos_x_index_for_field_game] == '*' \
-                    and list(screen.get_at(pos))[:3] != green:
+                       bs.field_game[pos_y_index_for_field_game][pos_x_index_for_field_game] == '*' \
+                       and list(screen.get_at(pos))[:3] != green:
                 pygame.draw.rect(screen, grey,
                              [pos_x+line_thickness,
                               pos_y+line_thickness,
                               width_circle-line_thickness,
                               height_circle-line_thickness])
+
+
+
+
 
     if val <= 0:
         pygame.draw.rect(screen, blue, [0, 0, height_field, width_field])
