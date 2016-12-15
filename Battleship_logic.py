@@ -11,7 +11,6 @@
 import random  # модуль генератора случайных чисел
 import pygame
 
-pygame.init()
 # создание игрового поля 10 на 10
 field_game = [['0' for row in range(1, 11)] for col in range(1, 11)]
 field_player = [['0' for row in range(1, 11)] for col in range(1, 11)]
@@ -112,20 +111,30 @@ class Ship():
         else:
             return ["Мимо!"]
 
+ships = []
+def f(x):
+    ships.append(Ship(x))
 
-ship_4_1 = Ship(4)
-ship_3_1 = Ship(3)
-ship_3_2 = Ship(3)
-ship_2_1 = Ship(2)
-ship_2_2 = Ship(2)
-ship_2_3 = Ship(2)
-ship_1_1 = Ship(1)
-ship_1_2 = Ship(1)
-ship_1_3 = Ship(1)
-ship_1_4 = Ship(1)
+z = 4
+for x in range(z):
+    for y in range(x+1):
+        f(z)
+    z -=1
 
-ships = [ship_4_1, ship_3_1, ship_3_2, ship_2_1, ship_2_2,
-         ship_2_3, ship_1_1, ship_1_2, ship_1_3, ship_1_4]
+
+# ship_4_1 = Ship(4)
+# ship_3_1 = Ship(3)
+# ship_3_2 = Ship(3)
+# ship_2_1 = Ship(2)
+# ship_2_2 = Ship(2)
+# ship_2_3 = Ship(2)
+# ship_1_1 = Ship(1)
+# ship_1_2 = Ship(1)
+# ship_1_3 = Ship(1)
+# ship_1_4 = Ship(1)
+#
+# ships = [ship_4_1, ship_3_1, ship_3_2, ship_2_1, ship_2_2,
+#          ship_2_3, ship_1_1, ship_1_2, ship_1_3, ship_1_4]
 
 for ship in ships:
     ship.coordinate(field_game)
@@ -136,7 +145,6 @@ def start_game(value):
     st.append('Вам дается %d попыток, чтобы найти корабли.' % (value-1))
     return st
 
-#print_field(field_game)
 def game(pl_str, pl_col, value, total_shot_ship):
 
     text = []
@@ -161,11 +169,12 @@ def game(pl_str, pl_col, value, total_shot_ship):
         text.append("У вас осталось - %d попыток" % (value-1))
         print(text)
         lst_sost = []
+        coord_for_ship_in_visual_field = []
         for shot_ship in ships:
             sost = shot_ship.shot((player_string - 1), (player_column - 1))
             lst_sost.append(sost)
         for l in lst_sost:
-            coord_for_ship_in_visual_field = []
+
             if len(l) > 1:
                 for (x, y) in l[1]:
                     field_player[x][y] = "I"

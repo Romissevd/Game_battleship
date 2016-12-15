@@ -3,7 +3,7 @@
 __author__ = 'Roman Evdokimov'
 
 '''
-Реализация игры "Морской бой" в графическом интерфейсе при помощи модуля pygame
+Реализация игры "Морской бой" в графическом интерфейсе при помощи библиотеки pygame
 логика игры будет взята из ранее написанного для командной строки
 '''
 
@@ -47,10 +47,10 @@ val = 51
 
 # функция создания линий на игровом поле
 def line_in_field(horizontal_line, vertical_line, color_line, x_circle, y_circle, line_thickness):
-    for x_offset in range(x_circle, vertical_line+x_circle, x_circle): # горизонтальные линии
+    for x_offset in range(0, vertical_line+x_circle, x_circle): # горизонтальные линии
         pygame.draw.line(screen, color_line, [0, x_offset], [horizontal_line, x_offset], line_thickness)
 
-    for y_offset in range(y_circle, horizontal_line, y_circle): # вертикальные линии
+    for y_offset in range(0, horizontal_line+y_circle, y_circle): # вертикальные линии
         pygame.draw.line(screen, color_line, [y_offset, 0], [y_offset, vertical_line], line_thickness)
 
 
@@ -78,7 +78,7 @@ while done: # цикл выполнения игры
     for event in pygame.event.get(): # что сделал пользователь
         if event.type == pygame.QUIT: # если нажал закрыть окно
             done=False # больше не выполнять цикл (но в последний раз все равно выполнится весь код может нужно выполнить continue?)
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT: # реакция на нажатие левой кнопоки мыши
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT and val > 1 and total < 10: # реакция на нажатие левой кнопоки мыши
             pos = pygame.mouse.get_pos() # координаты курсора
 
             # получение значений,
@@ -143,11 +143,7 @@ while done: # цикл выполнения игры
                               width_circle-line_thickness,
                               height_circle-line_thickness])
 
-
-
-
-
-    if val <= 0:
+    if val <= 1:
         pygame.draw.rect(screen, blue, [0, 0, height_field, width_field])
         font = pygame.font.Font(None, 25)
         text = font.render("GAME OVER",True,[random.randint(0,255) for _ in range(3)])
@@ -158,7 +154,6 @@ while done: # цикл выполнения игры
         font = pygame.font.Font(None, 25)
         text = font.render("WINNER",True,[random.randint(0,255) for _ in range(3)])
         screen.blit(text, [200, 250])
-
 
     pygame.display.flip() # обновление всей облати дисплея
     clock.tick(10) # частота обновлений игрового поля или выполнения цикла в секунду
