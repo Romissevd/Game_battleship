@@ -207,8 +207,8 @@ def game(pl_str, pl_col, value, total_shot_ship):
                     value += 1
                 #print("Мимо!!!")
                 text.append("Мимо!!!")
-        return [text, coord_for_ship_in_visual_field]
         #print_field(field_player)
+        return [text, coord_for_ship_in_visual_field]
     else:
         text.append("К сожалению вы проиграли!!!")
         print("К сожалению вы проиграли!!!")
