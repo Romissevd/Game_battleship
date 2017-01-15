@@ -25,12 +25,51 @@ WHITE = [255, 255, 255]
 attempts = 51  # количество попыток
 number_of_sunken_ships = 0  # количество потопленных кораблей
 
+icon = pygame.image.load('images/icon.png')  # загрузка изображения иконки
+icon.set_colorkey(WHITE)  # сделать задний фон иконки прозрачным
+pygame.display.set_icon(icon)  # установить иконку
+pygame.display.set_caption("Battle Ship v. 0.3")  # заголовок окна
 width_circle = height_circle = int((WIDTH*0.7)//10)  # размеры квадрата
 height_field = width_field = height_circle*10  # размеры игрового поля
 screen = pygame.display.set_mode([height_field, WIDTH])  # отображение игрового поля
-pygame.display.set_caption("Battle Ship v. 0.2")  # заголовок окна
 clock = pygame.time.Clock()  # модуль для работы со временем в pygame
-screen.fill(BLUE)  # создание заднего фона
+
+
+class Block(pygame.sprite.Sprite):
+    """Этот класс представляет блок. Он наследуется от класса "Sprite" из Pygame"""
+
+    def __init__(self, image_name, width, height, x_rect, y_rect):
+        super().__init__()
+        self.image_path = 'images/{}'.format(image_name)
+        self.image = pygame.image.load(self.image_path).convert()  # загрузить изображение и трансформировать его
+        self.image = pygame.transform.scale(self.image, [width, height])  # подогнать изображение под размер квадрата
+        self.image.set_colorkey(BLACK)  # задний ченый фон сделать прозрачным
+        self.rect = self.image.get_rect()  # привязать изображение к прямогульнику
+        self.rect.x = x_rect
+        self.rect.y = y_rect
+        self.position = 0
+
+    def update(self):
+        if self.rect.y < self.position:
+            self.rect.y += 1
+
+
+class BlockLine(pygame.sprite.Sprite):
+
+    def __init__(self, color, x_rect, y_rect, width, height):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+        self.rect = self.image.get_rect()  # привязать изображение к прямогульнику
+        self.rect.x = x_rect
+        self.rect.y = y_rect
+
+    def update(self):
+        pass
+
+
+block_list = pygame.sprite.Group()
+block_field_list = pygame.sprite.Group()
 
 
 def color_change_rect(color, pos_x_rect, pos_y_rect, width_rect, height_rect):
@@ -43,9 +82,11 @@ def color_change_rect(color, pos_x_rect, pos_y_rect, width_rect, height_rect):
 def line_in_field(horizontal_line, vertical_line, color_line, x_circle, y_circle, thickness_line):
     """создание линий на игровом поле"""
     for x_offset in range(0, vertical_line+x_circle, x_circle):  # горизонтальные линии
-        pygame.draw.line(screen, color_line, [0, x_offset], [horizontal_line, x_offset], thickness_line)
+        block_line = BlockLine(color_line, 0, x_offset, horizontal_line, thickness_line)
+        block_list.add(block_line)
     for y_offset in range(0, horizontal_line+y_circle, y_circle):  # вертикальные линии
-        pygame.draw.line(screen, color_line, [y_offset, 0], [y_offset, vertical_line], thickness_line)
+        block_line = BlockLine(color_line, y_offset, 0, thickness_line, horizontal_line)
+        block_list.add(block_line)
 
 
 def end_game(txt_message):
@@ -82,6 +123,10 @@ for txt in bs.start_game(attempts):
     text = font_init.render(txt, True, BLACK)
     screen.blit(text, [int(WIDTH*0.033), (WIDTH-(WIDTH-width_field))+int(WIDTH*0.033*number_of_displayed_rows)])
     number_of_displayed_rows += 1
+
+block_field = Block('sea.jpg', width_field, height_field, 0, 0)
+block_field_list.add(block_field)
+
 
 while DONE:  # выполнение игры
 
@@ -121,12 +166,13 @@ while DONE:  # выполнение игры
 
                 for x in result_game_player[1]:  # обрисовка уничтоженного корабля
 
-                    color_change_rect(GREEN,
-                                      x[1]*height_circle+LINE_THICKNESS,
-                                      x[0]*width_circle+LINE_THICKNESS,
-                                      width_circle-LINE_THICKNESS,
-                                      height_circle-LINE_THICKNESS
-                                      )
+                    block_lifebuoy = Block('lifebuoy.png',
+                                           width_circle-LINE_THICKNESS,
+                                           height_circle-LINE_THICKNESS,
+                                           x[1]*height_circle+LINE_THICKNESS,
+                                           x[0]*width_circle+LINE_THICKNESS
+                                           )
+                    block_list.add(block_lifebuoy)
 
                 display_string(result_game_player[0])
 
@@ -136,16 +182,26 @@ while DONE:  # выполнение игры
             if bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'H' or \
                bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'I':
 
-                color_change_rect(RED, pos_x+LINE_THICKNESS, pos_y+LINE_THICKNESS,
-                                  width_circle-LINE_THICKNESS, height_circle-LINE_THICKNESS
-                                  )
+                block_red_ship = Block('explosion.png',
+                                       width_circle-LINE_THICKNESS,
+                                       height_circle-LINE_THICKNESS,
+                                       pos_x+LINE_THICKNESS,
+                                       pos_y+LINE_THICKNESS
+                                       )
+
+                block_list.add(block_red_ship)
             # выстрел произведен мимо
             if bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == '0' or \
                bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'X':
 
-                color_change_rect(GREY, pos_x+LINE_THICKNESS, pos_y+LINE_THICKNESS,
-                                  width_circle-LINE_THICKNESS, height_circle-LINE_THICKNESS
-                                  )
+                block = Block("bomb.png", width_circle, height_circle, pos_x, -width_circle)
+                block.position = pos_y
+                block_list.add(block)
+
+    block_field_list.update()
+    block_field_list.draw(screen)
+    block_list.update()
+    block_list.draw(screen)
 
     if attempts <= 1:
         end_game("GAME OVER")
@@ -155,6 +211,6 @@ while DONE:  # выполнение игры
         end_game("WINNER")
 
     pygame.display.flip()  # обновление всей облати дисплея
-    clock.tick(10)  # частота обновлений игрового поля или выполнения цикла в секунду
+    clock.tick(30)  # частота обновлений игрового поля или выполнения цикла в секунду
 
 pygame.quit()
