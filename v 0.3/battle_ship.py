@@ -2,7 +2,10 @@
 
 import random
 import pygame
+import pyganim
 import Battleship_logic as bs
+
+from pygame.locals import *
 
 '''
 Реализация игры "Морской бой" в графическом интерфейсе при помощи библиотеки pygame
@@ -33,6 +36,19 @@ width_circle = height_circle = int((WIDTH*0.7)//10)  # размеры квадр
 height_field = width_field = height_circle*10  # размеры игрового поля
 screen = pygame.display.set_mode([height_field, WIDTH])  # отображение игрового поля
 clock = pygame.time.Clock()  # модуль для работы со временем в pygame
+
+ANIMATION_EXPLOSION = []
+SPEED_ANIMATION = 300
+
+for img in ['images/blowup1.png', 'images/blowup2.png',
+            'images/blowup3.png', 'images/blowup4.png']:
+    image_load = pygame.image.load(img).convert_alpha()
+    image_for_animation = pygame.transform.scale(image_load, [width_circle, height_circle])
+    ANIMATION_EXPLOSION.append((image_for_animation, SPEED_ANIMATION))
+IMAGE_EXPLOSION = pyganim.PygAnimation(ANIMATION_EXPLOSION)
+IMAGE_EXPLOSION.play()
+
+lst_explosion_coordinate = []
 
 
 class Block(pygame.sprite.Sprite):
@@ -91,7 +107,7 @@ def line_in_field(horizontal_line, vertical_line, color_line, x_circle, y_circle
 
 def end_game(txt_message):
     """вывод сообщения по окончании игры"""
-    color_change_rect(BLUE, 0, 0, height_field, width_field)
+    color_change_rect(GREY, 0, 0, height_field, width_field)
     font_style = pygame.font.Font(None, 25)
     message = font_style.render(txt_message, True, [random.randint(0, 255) for _ in range(3)])
     screen.blit(message, [200, 250])
@@ -100,7 +116,7 @@ def end_game(txt_message):
 def display_string(text_display):
     """Отображение хода игры (сообщений) в окне"""
     number_displayed_rows = 1
-    color_change_rect(WHITE, 0, WIDTH-(WIDTH-width_field), height_field, WIDTH-width_field)
+    color_change_rect(GREY, 0, WIDTH-(WIDTH-width_field), height_field, WIDTH-width_field)
     font_style = pygame.font.SysFont(None, int(WIDTH*0.033))
 
     for line_message in text_display:
@@ -111,7 +127,7 @@ def display_string(text_display):
         number_displayed_rows += 1
 
 # поле для отображения текста хода игры
-color_change_rect(WHITE, 0, WIDTH-(WIDTH-width_field), height_field, WIDTH-width_field)
+color_change_rect(GREY, 0, WIDTH-(WIDTH-width_field), height_field, WIDTH-width_field)
 # Построение игрового поля
 line_in_field(height_field, width_field, BLACK,
               height_circle, width_circle, LINE_THICKNESS
@@ -164,13 +180,13 @@ while DONE:  # выполнение игры
             if result_game_player[1]:  # корабль уничтожен
                 number_of_sunken_ships += 1
 
-                for x in result_game_player[1]:  # обрисовка уничтоженного корабля
+                for img in result_game_player[1]:  # обрисовка уничтоженного корабля
 
                     block_lifebuoy = Block('lifebuoy.png',
                                            width_circle-LINE_THICKNESS,
                                            height_circle-LINE_THICKNESS,
-                                           x[1]*height_circle+LINE_THICKNESS,
-                                           x[0]*width_circle+LINE_THICKNESS
+                                           img[1]*height_circle+LINE_THICKNESS,
+                                           img[0]*width_circle+LINE_THICKNESS
                                            )
                     block_list.add(block_lifebuoy)
 
@@ -182,14 +198,8 @@ while DONE:  # выполнение игры
             if bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'H' or \
                bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'I':
 
-                block_red_ship = Block('explosion.png',
-                                       width_circle-LINE_THICKNESS,
-                                       height_circle-LINE_THICKNESS,
-                                       pos_x+LINE_THICKNESS,
-                                       pos_y+LINE_THICKNESS
-                                       )
+                lst_explosion_coordinate.append((pos_x+LINE_THICKNESS, pos_y+LINE_THICKNESS))
 
-                block_list.add(block_red_ship)
             # выстрел произведен мимо
             if bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == '0' or \
                bs.field_player[pos_y_index_for_field_game][pos_x_index_for_field_game] == 'X':
@@ -203,6 +213,9 @@ while DONE:  # выполнение игры
     block_list.update()
     block_list.draw(screen)
 
+    for animation_coordinate in lst_explosion_coordinate:
+        IMAGE_EXPLOSION.blit(screen, animation_coordinate)
+
     if attempts <= 1:
         end_game("GAME OVER")
 
@@ -211,6 +224,6 @@ while DONE:  # выполнение игры
         end_game("WINNER")
 
     pygame.display.flip()  # обновление всей облати дисплея
-    clock.tick(30)  # частота обновлений игрового поля или выполнения цикла в секунду
+    clock.tick(60)  # частота обновлений игрового поля или выполнения цикла в секунду
 
 pygame.quit()
